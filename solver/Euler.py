@@ -155,7 +155,52 @@ def find_closest_common_ancestor(cls1, cls2):
     return None
 
 
-def solve_Euler(a_x: list[float], f_x: str) -> str:
+def clean_expr(expr):
+    """Очистка выражения:
+       - убирает множители 1 и 1.0
+       - приводит степени с .0 к целым
+       - заменяет десятичные дроби на рациональные (если точные)
+    """
+
+    if isinstance(expr, sp.Symbol):
+        return expr
+
+    if isinstance(expr, sp.Number):
+        if expr == int(expr):
+            return sp.Integer(int(expr))
+        else:
+            return sp.nsimplify(expr, rational=True, tolerance=1e-10)
+
+    if isinstance(expr, sp.Pow):
+        base = clean_expr(expr.base)
+        exp = clean_expr(expr.exp)
+        if exp.is_Float and exp == int(exp):
+            exp = int(exp)
+        return base**exp
+
+    if isinstance(expr, sp.Mul):
+        coeff, rest = expr.as_coeff_Mul()
+        rest_clean = clean_expr(rest)
+        if coeff == 1 or coeff == 1.0:
+            return rest_clean
+        if isinstance(coeff, sp.Float) and coeff == int(coeff):
+            coeff = sp.Integer(int(coeff))
+        elif isinstance(coeff, sp.Float):
+            numer, denom = coeff.as_integer_ratio()
+            if denom < 100:
+                coeff = sp.Rational(numer, denom)
+        return coeff * rest_clean
+
+    if isinstance(expr, sp.Add):
+        return sp.Add(*[clean_expr(arg) for arg in expr.args])
+
+    if isinstance(expr, sp.Basic):
+        return expr.func(*[clean_expr(arg) for arg in expr.args])
+
+    return expr
+
+
+def solve_Euler(a_x: list[float], f_x: str) -> Expr:
     a_t = find_a_t(a_x)
     sp_f_x = sp.sympify(f_x)
     x_expr = sp.exp(t)
@@ -166,6 +211,10 @@ def solve_Euler(a_x: list[float], f_x: str) -> str:
     y_t = find_y(a_t, sp_f_t)
     y_x = y_t.subs(t, t_expr)
     y_x = sp.simplify(y_x)
-    md_text = y_x._repr_latex_()
-    md_print(md_text)
-    return md_text
+
+    # y_x = clean_expr(y_x)
+
+    # md_text = sp.latex(y_x)
+    # md_print(md_text)
+
+    return y_x

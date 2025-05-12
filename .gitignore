@@ -2,5 +2,6 @@ node_modules/
 .venv/
 __pycache__/
 .vscode/
+render/
 test.md
 *.env
