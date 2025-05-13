@@ -1,5 +1,7 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton
 from typing import TYPE_CHECKING
+from solver import solve_Chebyshev
+from plotter import plot_function, plot_latex
 
 if TYPE_CHECKING:
     from ui.main_window import MainWindow
@@ -28,5 +30,9 @@ class ChebyshevInputView(QWidget):
 
     def solve(self) -> None:
         degree = self.input.text()
-        # TODO: вызвать решение уравнения Чебышева здесь
-        self.main_window.show_result("LATEX_CHEBYSHEV", "GRAPH_CHEBYSHEV.png")
+
+        f = solve_Chebyshev(float(degree))
+        plot_function(f)
+        plot_latex(f)
+
+        self.main_window.show_result()

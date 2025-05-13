@@ -11,6 +11,8 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Решатель дифференциальных уравнений")
         self.stack = QStackedWidget()
         self.setCentralWidget(self.stack)
+        
+        self.setFixedSize(800, 600)
 
         self.start_view = StartView(self)
         self.euler_view = EulerInputView(self)
@@ -35,6 +37,6 @@ class MainWindow(QMainWindow):
         self.chebyshev_view.reset()
         self.stack.setCurrentWidget(self.chebyshev_view)
 
-    def show_result(self, equation_latex: str, graph_path: str) -> None:
-        self.result_view.set_result(equation_latex, graph_path)
+    def show_result(self) -> None:
+        self.result_view.set_result()
         self.stack.setCurrentWidget(self.result_view)

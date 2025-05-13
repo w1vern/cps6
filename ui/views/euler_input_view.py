@@ -1,5 +1,7 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QLineEdit, QScrollArea
 from typing import List, TYPE_CHECKING
+from solver import solve_Euler
+from plotter import plot_function, plot_latex
 
 if TYPE_CHECKING:
     from ui.main_window import MainWindow
@@ -65,5 +67,10 @@ class EulerInputView(QWidget):
     def solve(self) -> None:
         coefficients = [inp.text() for inp in self.coefficient_inputs]
         func_text = self.func_input.text()
-        # TODO: вызвать решение уравнения Эйлера здесь
-        self.main_window.show_result("LATEX_EULER", "GRAPH_EULER.png")
+
+        coefs = [float(coef) for coef in coefficients]
+        f = solve_Euler(coefs, func_text)
+        plot_function(f)
+        plot_latex(f)
+
+        self.main_window.show_result()
