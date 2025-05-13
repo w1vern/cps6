@@ -8,5 +8,6 @@ dependencies = [
     "matplotlib>=3.10.3",
     "numpy>=2.2.5",
     "pyside6>=6.9.0",
+    "pyside6-addons>=6.9.0",
     "sympy>=1.14.0",
 ]

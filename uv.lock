@@ -51,6 +51,7 @@ dependencies = [
     { name = "matplotlib" },
     { name = "numpy" },
     { name = "pyside6" },
+    { name = "pyside6-addons" },
     { name = "sympy" },
 ]
 
@@ -59,6 +60,7 @@ requires-dist = [
     { name = "matplotlib", specifier = ">=3.10.3" },
     { name = "numpy", specifier = ">=2.2.5" },
     { name = "pyside6", specifier = ">=6.9.0" },
+    { name = "pyside6-addons", specifier = ">=6.9.0" },
     { name = "sympy", specifier = ">=1.14.0" },
 ]
 

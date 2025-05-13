@@ -1,56 +1,75 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton
-from PySide6.QtGui import QPixmap
-from PySide6.QtCore import Qt, QSize
-from typing import TYPE_CHECKING
-from plotter.config import Config
+from PySide6.QtWidgets import QWidget, QVBoxLayout
+from PySide6.QtSvgWidgets import QSvgWidget
 
-if TYPE_CHECKING:
-    from ui.main_window import MainWindow
+import xml.etree.ElementTree as ET
+
+
+def get_svg_aspect_ratio(path: str) -> float:
+    tree = ET.parse(path)
+    root = tree.getroot()
+
+    width = root.get("width")
+    height = root.get("height")
+
+    if width is None or height is None:
+        viewBox = root.get("viewBox")
+        if viewBox:
+            _, _, w, h = map(float, viewBox.strip().split())
+            return w / h
+        else:
+            raise ValueError("SVG must have width/height or viewBox")
+
+    def parse_dim(value: str) -> float:
+        return float(value.replace("pt", "").strip())
+
+    return parse_dim(width) / parse_dim(height)
 
 
 class ResultView(QWidget):
-    def __init__(self, main_window: 'MainWindow') -> None:
-        super().__init__()
-        self.main_window = main_window
+    def __init__(self, parent: QWidget) -> None:
+        super().__init__(parent)
 
-        self.layout = QVBoxLayout()
-        self.setLayout(self.layout)
+        self.my_layout = QVBoxLayout()
+        self.setLayout(self.my_layout)
 
-        self.latex_label = QLabel()
-        self.latex_label.setAlignment(Qt.AlignCenter)
+        self.latex_widget = QSvgWidget()
+        self.graph_widget = QSvgWidget()
 
-        self.graph_label = QLabel()
-        self.graph_label.setAlignment(Qt.AlignCenter)
+        self.latex_container = QWidget()
+        self.graph_container = QWidget()
 
-        self.back_btn = QPushButton("Вернуться в начало")
+        self.latex_layout = QVBoxLayout(self.latex_container)
+        self.graph_layout = QVBoxLayout(self.graph_container)
 
-        self.layout.addWidget(self.latex_label)
-        self.layout.addWidget(self.graph_label)
-        self.layout.addWidget(self.back_btn)
+        self.latex_layout.addWidget(self.latex_widget)
+        self.graph_layout.addWidget(self.graph_widget)
 
-        self.back_btn.clicked.connect(self.main_window.show_start)
-
-        self.latex_pixmap = None
-        self.graph_pixmap = None
-
-    def set_result(self) -> None:
-        self.latex_pixmap = QPixmap(f"{Config.output_dir}/latex.png")
-        self.graph_pixmap = QPixmap(f"{Config.output_dir}/function.png")
-        self._update_images()
+        self.my_layout.addWidget(self.latex_container, stretch=3)
+        self.my_layout.addWidget(self.graph_container, stretch=7)
 
     def resizeEvent(self, event) -> None:
+        self._rescale()
         super().resizeEvent(event)
-        self._update_images()
 
-    def _update_images(self) -> None:
-        if self.latex_pixmap and not self.latex_pixmap.isNull():
-            scaled_latex = self.latex_pixmap.scaled(
-                self.latex_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation
-            )
-            self.latex_label.setPixmap(scaled_latex)
+    def _rescale(self) -> None:
+        latex_ratio = get_svg_aspect_ratio("render/latex.svg")
+        graph_ratio = get_svg_aspect_ratio("render/function.svg")
 
-        if self.graph_pixmap and not self.graph_pixmap.isNull():
-            scaled_graph = self.graph_pixmap.scaled(
-                self.graph_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation
-            )
-            self.graph_label.setPixmap(scaled_graph)
+        latex_container_width = self.latex_container.width()
+        graph_container_width = self.graph_container.width()
+
+        latex_height = int(latex_container_width / latex_ratio)
+        graph_height = int(graph_container_width / graph_ratio)
+
+        self.latex_widget.setFixedSize(latex_container_width, latex_height)
+        self.graph_widget.setFixedSize(graph_container_width, graph_height)
+
+
+    def set_result(self) -> None:
+        self.latex_widget.load("render/latex.svg")
+        self.graph_widget.load("render/function.svg")
+        self._rescale()
+
+    def clear_result(self) -> None:
+        self.latex_widget.load(b"")
+        self.graph_widget.load(b"")
