@@ -67,7 +67,6 @@ def find_Y(a_t: list[float]) -> Expr:
             f_real_part += C * t**i * sp.exp(key*t)
 
     f_complex_part = sp.S(0)
-    C_index = 1
 
     for (re, im), value in complex.items():
         if value % 2 != 0:
