@@ -15,14 +15,16 @@ class EulerInputView(QWidget):
         self.coeff_layout = QVBoxLayout()
         self.add_remove_buttons(layout)
 
-        layout.addWidget(QLabel("Коэффициенты a_i:"))
+        layout.addWidget(QLabel("Введите значения коэффициентов a_i:"))
+        self.i = 0
         for _ in range(3):
             self.add_coefficient()
 
-        self.func_input = QLineEdit(placeholderText="f(x) = ")
-        layout.addWidget(QLabel("Функция:"))
-        layout.addWidget(self.func_input)
+        #self.func_input = QLineEdit(placeholderText="f(x) = ")
+        #layout.addWidget(QLabel("Функция:"))
+        #layout.addWidget(self.func_input)
         layout.addLayout(self.coeff_layout)
+        
 
     def add_remove_buttons(self, layout: QVBoxLayout) -> None:
         btn_layout = QHBoxLayout()
@@ -36,7 +38,8 @@ class EulerInputView(QWidget):
         remove_btn.clicked.connect(self.remove_coefficient)
 
     def add_coefficient(self) -> None:
-        inp = QLineEdit(placeholderText="1.0")
+        inp = QLineEdit(placeholderText=f"a_{self.i}")
+        self.i += 1
         self.coefficients.append(inp)
         self.coeff_layout.addWidget(inp)
 
@@ -44,9 +47,11 @@ class EulerInputView(QWidget):
         if self.coefficients:
             inp = self.coefficients.pop()
             inp.setParent(None)
+            self.i -= 1
 
     def get_data(self) -> tuple[list[float], str]:
         return (
             [float(inp.text()) for inp in self.coefficients],
-            self.func_input.text()
+            ""
+            #self.func_input.text()
         )

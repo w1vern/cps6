@@ -8,8 +8,6 @@ x = sp.Symbol('x')
 
 
 def T(n: int) -> Expr:
-    if n < 0:
-        raise Exception("n must be positive")
     if n == 0:
         return sp.Integer(1)
     if n == 1:
@@ -18,10 +16,6 @@ def T(n: int) -> Expr:
 
 
 def U(n: int) -> Expr:
-    if n < -1:
-        raise Exception("n must be positive")
-    if n == -1:
-        return sp.Integer(0)
     if n == 0:
         return sp.Integer(1)
     if n == 1:
@@ -30,12 +24,16 @@ def U(n: int) -> Expr:
 
 
 def N(n: int) -> Expr:
-    return sp.simplify(sp.sqrt(1 - x**2) * U(n-1))
+    if n == 0:
+        U_n = sp.Integer(0)
+    else:
+        U_n = U(n-1)
+    return sp.simplify(sp.sqrt(1 - x**2) * U_n)
 
 
 def solve_Chebyshev(n: float) -> Expr:
     if n.is_integer():
-        y_x = T(int(n)) + N(int(n))
+        y_x = T(abs(int(n))) + N(abs(int(n)))
     else:
         t = sp.Symbol('t')
         C_1 = sp.Symbol('C_1')
@@ -43,9 +41,9 @@ def solve_Chebyshev(n: float) -> Expr:
         t_expr = sp.acos(x)
         y_t = C_1 * sp.cos(n * t) + C_2 * sp.sin(n * t)
         y_x = y_t.subs(t, t_expr)
-    #y_x = sp.simplify(y_x)
+    # y_x = sp.simplify(y_x)
 
-    #md_text = y_x._repr_latex_()
-    #md_print(md_text)
+    # md_text = y_x._repr_latex_()
+    # md_print(md_text)
 
     return y_x

@@ -1,9 +1,7 @@
 import sympy as sp
 import numpy as np
-import matplotlib.pyplot as plt
 from sympy.core.expr import Expr
 
-from solver.print import md_print
 
 t = sp.Symbol('t')
 x = sp.Symbol('x')
@@ -33,13 +31,16 @@ def find_a_t(a_x: list[float]) -> list[float]:
 
 def find_Y(a_t: list[float]) -> Expr:
     roots = np.roots(a_t)
-    roots = [np.round(root.real, 2) + 1j * np.round(root.imag, 2)
-             for root in roots if isinstance(root, np.complex128)]
-    roots = [root.real for root in roots if isinstance(
-        root, np.complex128) and abs(root.imag) < 0.01]
+    new_roots = []
+    for root in roots:
+        if isinstance(root, np.complex128):
+            root = np.round(root.real, 2) + 1j * np.round(root.imag, 2)
+            if abs(root.imag) < 0.01:
+                root = root.real
+        new_roots.append(root)
     real: dict[float, int] = {}
     complex: dict[tuple[float, float], int] = {}
-    for root in roots:
+    for root in new_roots:
         if isinstance(root, np.float64):
             if float(root) in real:
                 real[root] += 1
@@ -54,6 +55,7 @@ def find_Y(a_t: list[float]) -> Expr:
         else:
             raise Exception(
                 f"wrong type definition. Current type: {type(root)}")
+
     f_real_part = sp.S(0)
 
     C_index = 1
@@ -68,6 +70,8 @@ def find_Y(a_t: list[float]) -> Expr:
     C_index = 1
 
     for (re, im), value in complex.items():
+        if value % 2 != 0:
+            raise Exception("Complex roots must be together")
         for i in range(value//2):
             C1 = sp.Symbol(f'C_{C_index}')
             C2 = sp.Symbol(f'C_{C_index+1}')
@@ -89,7 +93,8 @@ def find_y_with_tilde(f_t: Expr, Y: Expr) -> Expr:
     for c in constants:
         subs = {k: 0 for k in constants}
         subs[c] = 1
-        base_solutions.append(sp.simplify(Y.subs(subs)))
+        #base_solutions.append(sp.simplify(Y.subs(subs)))
+        base_solutions.append(Y.subs(subs))
 
     n = len(base_solutions)
     phi = base_solutions
@@ -202,18 +207,21 @@ def clean_expr(expr):
 
 def solve_Euler(a_x: list[float], f_x: str) -> Expr:
     a_t = find_a_t(a_x)
-    sp_f_x = sp.sympify(f_x)
+    # sp_f_x = sp.sympify(f_x)
     x_expr = sp.exp(t)
     t_expr = sp.ln(x)
-    sp_f_t = sp_f_x.subs(x, x_expr)
-    if not isinstance(sp_f_t, Expr):
-        raise Exception("need to fix this possibility")
-    y_t = find_y(a_t, sp_f_t)
+    # sp_f_t = sp_f_x.subs(x, x_expr)
+    # if not isinstance(sp_f_t, Expr):
+    #    raise Exception("need to fix this possibility")
+    # y_t = find_y(a_t, sp_f_t)
+
+    y_t = find_Y(a_t)
+
     y_x = y_t.subs(t, t_expr)
-    y_x = sp.simplify(y_x)
+
+    #y_x = sp.simplify(y_x)
 
     # y_x = clean_expr(y_x)
-
     # md_text = sp.latex(y_x)
     # md_print(md_text)
 

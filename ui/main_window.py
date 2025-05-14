@@ -8,12 +8,13 @@ from PySide6.QtGui import QPalette
 from solver import solve_Chebyshev
 from plotter import plot_function, plot_latex
 
+
 class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle("Решатель дифференциальных уравнений")
         self.setFixedSize(800, 1000)
-        #self.setWindowFlags(self.windowFlags() & ~Qt.WindowType.WindowMaximizeButtonHint)
+        # self.setWindowFlags(self.windowFlags() & ~Qt.WindowType.WindowMaximizeButtonHint)
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -30,11 +31,12 @@ class MainWindow(QMainWindow):
         try:
             if isinstance(inputs, float | int):
                 f = solve_Chebyshev(inputs)
+                x_range = (-1, 1)
             else:
                 f = solve_Euler(inputs[0], inputs[1])
-            plot_function(f, is_dark)
-            plot_latex(f, is_dark)    
+                x_range = (0.01, 5)
+            plot_function(f, is_dark, x_range)
+            plot_latex(f, is_dark)
             self.combined_view.set_result()
         except Exception as e:
-            print(e)
-        
+            print(f"runtime exception: {e}")

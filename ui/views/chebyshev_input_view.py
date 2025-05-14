@@ -11,8 +11,8 @@ class ChebyshevInputView(QWidget):
         layout = QVBoxLayout()
         self.setLayout(layout)
 
-        layout.addWidget(QLabel("Степень уравнения:"))
-        self.degree_input = QLineEdit()
+        layout.addWidget(QLabel("Введите значение n:"))
+        self.degree_input = QLineEdit(placeholderText="n")
         layout.addWidget(self.degree_input)
 
     def get_data(self) -> float:
