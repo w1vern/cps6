@@ -1,5 +1,4 @@
 from PySide6.QtWidgets import QApplication
-from sympy import plot
 from ui.main_window import MainWindow
 import sys
 from PySide6.QtGui import QPalette, QColor

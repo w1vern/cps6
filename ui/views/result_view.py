@@ -44,7 +44,7 @@ class ResultView(QWidget):
         self.latex_layout.addWidget(self.latex_widget)
         self.graph_layout.addWidget(self.graph_widget)
 
-        self.my_layout.addWidget(self.latex_container, stretch=3)
+        self.my_layout.addWidget(self.latex_container, stretch=1)
         self.my_layout.addWidget(self.graph_container, stretch=7)
 
     def resizeEvent(self, event) -> None:

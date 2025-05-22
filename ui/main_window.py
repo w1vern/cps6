@@ -2,8 +2,7 @@
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout
 from solver.Euler import solve_Euler
 from ui.views.combined_view import CombinedView
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QPalette
+from PySide6.QtGui import QPalette, QGuiApplication
 
 from solver import solve_Chebyshev
 from plotter import plot_function, plot_latex
@@ -13,7 +12,17 @@ class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle("Решатель дифференциальных уравнений")
-        self.setFixedSize(800, 1000)
+
+        screen = QGuiApplication.primaryScreen()
+        screen_size = screen.availableGeometry()
+        screen_width = screen_size.width()
+        screen_height = screen_size.height()
+
+        window_width = int(screen_width * 0.3)
+        window_height = int(screen_height * 0.9)
+
+        self.setFixedSize(window_width, window_height)
+        #self.setFixedSize(800, 1000)
         # self.setWindowFlags(self.windowFlags() & ~Qt.WindowType.WindowMaximizeButtonHint)
 
         central_widget = QWidget()

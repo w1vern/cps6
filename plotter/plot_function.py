@@ -17,7 +17,10 @@ def plot_function(f: Expr,
     f_lambdified = sp.lambdify(x, new_f, 'numpy')
 
     x_vals = np.linspace(x_range[0], x_range[1], num_points)
-    y_vals = f_lambdified(x_vals)
+    if x not in new_f.free_symbols:
+        y_vals = np.full_like(x_vals, float(new_f))
+    else:
+        y_vals = f_lambdified(x_vals)
 
     if is_dark:
         plt.style.use('dark_background')
