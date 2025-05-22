@@ -1,8 +1,7 @@
+
 import sympy as sp
-import matplotlib.pyplot as plt
 from sympy.core.expr import Expr
 
-from solver.print import md_print
 
 x = sp.Symbol('x')
 

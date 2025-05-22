@@ -3,5 +3,8 @@ node_modules/
 __pycache__/
 .vscode/
 render/
+build/
+dist/
+*.spec
 test.md
 *.env
